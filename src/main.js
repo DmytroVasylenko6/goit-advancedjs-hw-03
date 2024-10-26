@@ -1,4 +1,3 @@
-import LoadMoreBtn from './js/load-more-btn';
 import PicturesApiService from './js/pixabay-api';
 import { renderCard } from './js/render-functions';
 import iziToast from 'izitoast';
@@ -12,13 +11,8 @@ const refs = {
   galleryItem: document.querySelector('.photo-card'),
 };
 
-const loadMoreBtn = new LoadMoreBtn({
-  selector: '[data-action="load-more"]',
-  hidden: true,
-});
 
 refs.searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.refs.button.addEventListener('click', onLoadMore);
 refs.gallery.addEventListener('click', onImageClick);
 
 function onImageClick(event) {
@@ -34,22 +28,20 @@ function onSearch(e) {
   clearPictureGallery();
   picturesApiService.query = e.currentTarget.elements.query.value.trim();
 
+  console.log('picturesApiService.query : ', picturesApiService.query)
+
   if (picturesApiService.query === '') {
-    loadMoreBtn.hide();
-    iziToast.show('Enter text!');
+    iziToast.show({
+      title: 'Error',
+      message: 'Please enter text!',
+      position: 'topCenter',
+      color: 'red',
+    });
+
+    return
   }
 
-  picturesApiService.resetPage();
   fetchPictures();
-  loadMoreBtn.show();
-}
-
-function onLoadMore() {
-  const startTime = performance.now();
-  fetchPictures();
-  const endTime = performance.now();
-  const time = Math.floor(endTime - startTime) * 1000;
-  scroll(time);
 }
 
 function appendPicturesMarkup(pictures) {
@@ -70,30 +62,31 @@ function clearPictureGallery() {
 }
 
 async function fetchPictures() {
-  loadMoreBtn.disable();
 
   try {
     const pictures = await picturesApiService.fetchPictures();
     appendPicturesMarkup(pictures);
-    loadMoreBtn.enable();
   } catch (er) {
     errors(er);
-    loadMoreBtn.hide();
   }
-}
-
-function scroll(time) {
-  let i = refs.gallery.clientHeight;
-  setTimeout(() => {
-    window.scrollTo({ top: i, behavior: 'smooth' });
-  }, time);
 }
 
 function errors(er) {
   if (er === 'Images not found') {
-    iziToast.show('Unfortunately nothing was found for this request');
+    iziToast.show({
+      title: 'Error',
+      message: 'Sorry, there are no images matching your search query. Please try again!',
+      position: 'topCenter',
+      color: 'red',
+    });
+
     return;
   }
 
-  iziToast.show('Error! Failed to upload images');
+  iziToast.show({
+      title: 'Error',
+      message: 'Error! Failed to upload images',
+      position: 'topCenter',
+      color: 'red',
+  });
 }

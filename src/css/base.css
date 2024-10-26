@@ -39,6 +39,8 @@ main:has(.back-link) {
 
 img {
   display: block;
+  object-fit: cover;
+  height: 100%;
   max-width: 100%;
 }
 

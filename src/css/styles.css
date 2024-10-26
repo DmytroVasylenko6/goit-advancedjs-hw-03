@@ -49,6 +49,12 @@ body {
   width: 100%;
 }
 
+.gallery__link {
+  max-height: 250px;
+  overflow: hidden;
+  display: block;
+}
+
 .stats {
   display: flex;
   align-items: center;
